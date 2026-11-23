@@ -36,7 +36,7 @@ export default function Login() {
   return (
     <div className="auth2" style={{ minHeight: '80vh' }}>
       <div className="art">
-        <Link className="brandrow" href="/"><img src={BRAND.logo} alt="" width="40" height="40" /><span><b>{BRAND.nameA}<span>{BRAND.nameB}</span></b><small>Store</small></span></Link>
+        <Link className="brandrow" href="/"><img src={BRAND.logo} alt="" width="40" height="40" /><span><b>{BRAND.nameA}<span>{BRAND.nameB}</span></b></span></Link>
         <div><h1>Welcome to {BRAND.short}.</h1><p className="mut">Track orders, pay from your wallet and reorder in a tap.</p></div>
       </div>
       <form className="glass" onSubmit={submit}>

@@ -34,7 +34,7 @@ export default function ProductView({ p, related }: { p: Product; related: Produ
             </div>
           )}
           <h4 style={{ margin: '.8rem 0 0' }}>About this product</h4>
-          <p className="desc">{p.desc || 'A quality product from Bamyon Store.'}</p>
+          <p className="desc">{p.desc || 'A quality product from Bamyon.'}</p>
         </div>
       </div>
       <Reviews pid={p.id} pname={p.name} />

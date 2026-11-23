@@ -2,7 +2,7 @@ import BlogFeed from '@/components/Blog';
 import { getPosts } from '@/lib/server';
 
 export const revalidate = 60;
-export const metadata = { title: 'Blog', description: 'News, tips and stories from Bamyon Store.' };
+export const metadata = { title: 'Blog', description: 'News, tips and stories from Bamyon.' };
 
 export default async function BlogPage() {
   const posts = await getPosts();

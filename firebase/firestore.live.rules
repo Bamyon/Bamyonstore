@@ -8,6 +8,19 @@ service cloud.firestore{match /databases/{database}/documents{
  function can(p){return active()&&(full()||me().get('perms',{}).get(p,false)==true)}
  function newsW(){return active()&&(full()||can('products.create')||can('products.edit')||can('blog.manage')||can('promotions.manage')||can('settings.manage'))}
  function d(){return request.resource.data.diff(resource.data).affectedKeys()}
+ function gcc(o,n){return (o[0]!=n[0]?1:0)+(o[1]!=n[1]?1:0)+(o[2]!=n[2]?1:0)+(o[3]!=n[3]?1:0)+(o[4]!=n[4]?1:0)+(o[5]!=n[5]?1:0)+(o[6]!=n[6]?1:0)+(o[7]!=n[7]?1:0)+(o[8]!=n[8]?1:0)}
+ function gcf(o,n,s){return (o[0]==''&&n[0]==s?1:0)+(o[1]==''&&n[1]==s?1:0)+(o[2]==''&&n[2]==s?1:0)+(o[3]==''&&n[3]==s?1:0)+(o[4]==''&&n[4]==s?1:0)+(o[5]==''&&n[5]==s?1:0)+(o[6]==''&&n[6]==s?1:0)+(o[7]==''&&n[7]==s?1:0)+(o[8]==''&&n[8]==s?1:0)}
+ function gln(b,s){return (b[0]==s&&b[1]==s&&b[2]==s)||(b[3]==s&&b[4]==s&&b[5]==s)||(b[6]==s&&b[7]==s&&b[8]==s)||(b[0]==s&&b[3]==s&&b[6]==s)||(b[1]==s&&b[4]==s&&b[7]==s)||(b[2]==s&&b[5]==s&&b[8]==s)||(b[0]==s&&b[4]==s&&b[8]==s)||(b[2]==s&&b[4]==s&&b[6]==s)}
+ function gfl(b){return b[0]!=''&&b[1]!=''&&b[2]!=''&&b[3]!=''&&b[4]!=''&&b[5]!=''&&b[6]!=''&&b[7]!=''&&b[8]!=''}
+ function gsym(){return request.auth.uid==resource.data.a?'X':'O'}
+ function gopp(){return request.auth.uid==resource.data.a?resource.data.b:resource.data.a}
+ function gisP(){return request.auth.uid in resource.data.players}
+ function gtttOk(){return request.resource.data.board.size()==9&&gcc(resource.data.board,request.resource.data.board)==1&&gcf(resource.data.board,request.resource.data.board,gsym())==1&&request.resource.data.updatedAt==request.time&&(gln(request.resource.data.board,gsym())?(request.resource.data.status=='finished'&&request.resource.data.winner==request.auth.uid):(gfl(request.resource.data.board)?(request.resource.data.status=='finished'&&request.resource.data.winner=='draw'):(request.resource.data.status=='live'&&request.resource.data.winner==''&&request.resource.data.turn==gopp())))}
+ function gwin(sa,sb){return sa>sb?resource.data.a:(sb>sa?resource.data.b:'draw')}
+ function gmathOk(){return resource.data.game=='math'&&resource.data.status=='live'&&gisP()&&request.resource.data.round==resource.data.round+1&&request.resource.data.roundStart==request.time&&request.resource.data.updatedAt==request.time&&request.resource.data.sa>=resource.data.sa&&request.resource.data.sb>=resource.data.sb&&(request.resource.data.sa-resource.data.sa)+(request.resource.data.sb-resource.data.sb)<=1&&(request.resource.data.sa==resource.data.sa||request.auth.uid==resource.data.a)&&(request.resource.data.sb==resource.data.sb||request.auth.uid==resource.data.b)&&((request.resource.data.sa+request.resource.data.sb==resource.data.sa+resource.data.sb)?(request.time>=resource.data.roundStart+duration.value(10,'s')):(request.time<=resource.data.roundStart+duration.value(12,'s')))&&((request.resource.data.round<resource.data.total)?(request.resource.data.status=='live'&&request.resource.data.winner==''):(request.resource.data.status=='finished'&&request.resource.data.winner==gwin(request.resource.data.sa,request.resource.data.sb)))}
+ function gmt(m){return get(/databases/$(database)/documents/matches/$(m)).data}
+ function gstat(u){return request.resource.data.get('lastMatch','')!=''&&gmt(request.resource.data.lastMatch).status=='finished'&&gmt(request.resource.data.lastMatch).online==true&&(u==gmt(request.resource.data.lastMatch).a||u==gmt(request.resource.data.lastMatch).b)&&!exists(/databases/$(database)/documents/matches/$(request.resource.data.lastMatch)/counted/$(u))&&existsAfter(/databases/$(database)/documents/matches/$(request.resource.data.lastMatch)/counted/$(u))&&request.resource.data.wins-resource.data.get('wins',0)==(gmt(request.resource.data.lastMatch).winner==u?1:0)&&request.resource.data.draws-resource.data.get('draws',0)==(gmt(request.resource.data.lastMatch).winner=='draw'?1:0)&&request.resource.data.losses-resource.data.get('losses',0)==((gmt(request.resource.data.lastMatch).winner!=u&&gmt(request.resource.data.lastMatch).winner!='draw')?1:0)&&request.resource.data.tttWins-resource.data.get('tttWins',0)==((gmt(request.resource.data.lastMatch).winner==u&&gmt(request.resource.data.lastMatch).game=='ttt')?1:0)&&request.resource.data.mathWins-resource.data.get('mathWins',0)==((gmt(request.resource.data.lastMatch).winner==u&&gmt(request.resource.data.lastMatch).game=='math')?1:0)}
+ function gneed(){return exists(/databases/$(database)/documents/settings/public)?get(/databases/$(database)/documents/settings/public).data.get('gameRewardWins',500):500}
  function step(a,b){return (a=='PLACED'&&b in ['APPROVED','REJECTED'])||(a=='APPROVED'&&b in ['PACKING','CANCELLED'])||(a=='PACKING'&&b in ['READY','CANCELLED'])||(a=='READY'&&b in ['OUT_FOR_DELIVERY','CANCELLED'])||(a=='OUT_FOR_DELIVERY'&&b in ['DELIVERED','DELIVERY_EXCEPTION'])}
  match /users/{u}{
   allow read:if ok()&&(request.auth.uid==u||can('users.view'));
@@ -52,7 +65,7 @@ service cloud.firestore{match /databases/{database}/documents{
   match /comments/{c}{
    allow read:if true;
    allow create:if ok()&&request.resource.data.keys().hasOnly(['uid','name','avatar','text','photo','at','parent'])&&(!('avatar' in request.resource.data)||request.resource.data.avatar==''||request.resource.data.avatar.matches('https://res.cloudinary.com/.*'))&&(!('parent' in request.resource.data)||request.resource.data.parent is string)&&(request.resource.data.photo==''||request.resource.data.photo.matches('https://res.cloudinary.com/.*'))&&request.resource.data.uid==request.auth.uid&&request.resource.data.text.size()<=500&&request.resource.data.at==request.time;
-   allow delete:if ok()&&(resource.data.uid==request.auth.uid||can('blog.moderate'));
+   allow delete:if ok()&&((resource.data.uid==request.auth.uid&&request.time<resource.data.at+duration.value(10,'m'))||can('blog.moderate'));
    match /likes/{u}{allow read:if true;allow create:if ok()&&u==request.auth.uid&&request.resource.data.keys().hasOnly(['at']);allow delete:if ok()&&u==request.auth.uid;}
   }
  }
@@ -72,6 +85,40 @@ service cloud.firestore{match /databases/{database}/documents{
   allow create:if ok()&&r==request.auth.uid&&request.resource.data.keys().hasOnly(['referrerUid','name','status','createdAt'])&&request.resource.data.status=='PENDING'&&request.resource.data.referrerUid!=request.auth.uid&&exists(/databases/$(database)/documents/users/$(request.resource.data.referrerUid))&&request.resource.data.createdAt==request.time;
   allow update:if can('orders.update_status')&&resource.data.status=='PENDING'&&d().hasOnly(['status','readyAt'])&&request.resource.data.status=='READY';
   match /claims/{u}{allow read:if ok()&&(u==request.auth.uid||can('customers.view'));allow write:if false;}
+ }
+ match /players/{u}{
+  allow read:if ok();
+  allow create:if ok()&&u==request.auth.uid&&request.resource.data.keys().hasOnly(['name','nameLower','photo','code','wins','losses','draws','tttWins','mathWins','createdAt','lastSeen'])&&request.resource.data.wins==0&&request.resource.data.losses==0&&request.resource.data.draws==0&&request.resource.data.tttWins==0&&request.resource.data.mathWins==0&&request.resource.data.code==me().ruthId&&request.resource.data.name.size()<=40&&(request.resource.data.photo==''||request.resource.data.photo.matches('https://res.cloudinary.com/.*'));
+  allow update:if ok()&&u==request.auth.uid&&((d().hasOnly(['name','nameLower','photo','lastSeen'])&&(!d().hasAny(['photo'])||(request.resource.data.photo==''||request.resource.data.photo.matches('https://res.cloudinary.com/.*'))))||(d().hasOnly(['wins','losses','draws','tttWins','mathWins','lastMatch'])&&gstat(u)));
+  match /games/{m}{
+   allow read:if ok()&&u==request.auth.uid;
+   allow create,update:if ok()&&request.auth.uid in getAfter(/databases/$(database)/documents/matches/$(m)).data.players&&u in getAfter(/databases/$(database)/documents/matches/$(m)).data.players&&request.resource.data.keys().hasOnly(['game','opp','oppName','status','from','turnMe','updatedAt']);
+   allow delete:if ok()&&u==request.auth.uid;
+  }
+ }
+ match /matches/{m}{
+  allow read:if ok();
+  allow create:if ok()&&request.resource.data.a==request.auth.uid&&request.resource.data.keys().hasOnly(['game','a','b','an','bn','players','status','online','level','tid','board','turn','seed','round','total','sa','sb','roundStart','winner','createdAt','updatedAt'])&&request.resource.data.game in ['ttt','math']&&request.resource.data.online==true&&request.resource.data.winner==''&&request.resource.data.b!=request.auth.uid&&request.resource.data.players==(request.resource.data.b==''?[request.auth.uid]:[request.auth.uid,request.resource.data.b])&&(request.resource.data.b==''?request.resource.data.status=='open':request.resource.data.status=='invited')&&request.resource.data.createdAt==request.time&&request.resource.data.updatedAt==request.time&&(request.resource.data.tid==''||get(/databases/$(database)/documents/tournaments/$(request.resource.data.tid)).data.status=='open')&&(request.resource.data.game=='ttt'?(request.resource.data.board==['','','','','','','','','']&&request.resource.data.turn==request.auth.uid):(request.resource.data.round==0&&request.resource.data.sa==0&&request.resource.data.sb==0&&request.resource.data.total==10&&request.resource.data.level in ['easy','medium','hard']));
+  allow update:if ok()&&(
+   (resource.data.status=='invited'&&request.auth.uid==resource.data.b&&d().hasOnly(['status','updatedAt','roundStart'])&&((request.resource.data.status=='live'&&(resource.data.game=='ttt'||request.resource.data.roundStart==request.time))||request.resource.data.status=='declined'))
+   ||(resource.data.status in ['open','invited']&&request.auth.uid==resource.data.a&&d().hasOnly(['status','updatedAt'])&&request.resource.data.status=='declined')
+   ||(resource.data.status=='open'&&resource.data.b==''&&request.auth.uid!=resource.data.a&&d().hasOnly(['b','bn','players','status','updatedAt','roundStart'])&&request.resource.data.b==request.auth.uid&&request.resource.data.players==[resource.data.a,request.auth.uid]&&request.resource.data.status=='live'&&(resource.data.game=='ttt'||request.resource.data.roundStart==request.time))
+   ||(resource.data.game=='ttt'&&resource.data.status=='live'&&resource.data.turn==request.auth.uid&&d().hasOnly(['board','turn','status','winner','updatedAt'])&&gtttOk())
+   ||(resource.data.status=='live'&&gisP()&&d().hasOnly(['status','winner','updatedAt'])&&request.resource.data.status=='finished'&&request.resource.data.winner==gopp()&&request.resource.data.updatedAt==request.time)
+   ||(resource.data.game=='ttt'&&resource.data.status=='live'&&gisP()&&resource.data.turn!=request.auth.uid&&request.time>resource.data.updatedAt+duration.value(90,'s')&&d().hasOnly(['status','winner','updatedAt'])&&request.resource.data.status=='finished'&&request.resource.data.winner==request.auth.uid&&request.resource.data.updatedAt==request.time)
+   ||(d().hasOnly(['round','sa','sb','roundStart','updatedAt','status','winner'])&&gmathOk())
+  );
+  match /counted/{u}{allow read:if ok();allow create:if ok()&&u==request.auth.uid&&request.resource.data.keys().hasOnly(['at'])&&get(/databases/$(database)/documents/matches/$(m)).data.status=='finished'&&u in get(/databases/$(database)/documents/matches/$(m)).data.players;}
+ }
+ match /tournaments/{t}{
+  allow read:if ok();
+  allow create,update,delete:if can('promotions.manage');
+  match /players/{u}{allow read:if ok();allow create:if ok()&&u==request.auth.uid&&request.resource.data.keys().hasOnly(['name','at'])&&get(/databases/$(database)/documents/tournaments/$(t)).data.status=='open';allow delete:if ok()&&u==request.auth.uid;}
+ }
+ match /gameClaims/{u}{
+  allow read:if ok()&&(u==request.auth.uid||can('promotions.manage'));
+  allow create:if ok()&&u==request.auth.uid&&request.resource.data.keys().hasOnly(['uid','name','wins','status','createdAt'])&&request.resource.data.uid==u&&request.resource.data.status=='PENDING'&&request.resource.data.wins==get(/databases/$(database)/documents/players/$(u)).data.get('wins',0)&&request.resource.data.wins>=gneed()&&request.resource.data.createdAt==request.time;
+  allow update:if can('promotions.manage')&&d().hasOnly(['status','paidAt','note']);
  }
  match /wallet/{u}/ledger/{e}{allow read:if ok()&&(u==request.auth.uid||can('customers.view'));}
  match /balances/{u}{allow read:if ok()&&(u==request.auth.uid||can('customers.view'));}

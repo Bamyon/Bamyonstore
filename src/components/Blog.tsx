@@ -6,7 +6,7 @@ import { track } from '@/lib/api';
 import { useApp } from './Providers';
 import Icon from './Icon';
 import { Avatar } from './ui';
-import { ago, short, uploadImg, safeImg, K } from '@/lib/util';
+import { ago, short, uploadImg, safeImg, K, ms } from '@/lib/util';
 import type { Post } from '@/lib/types';
 import { BRAND } from '@/config/brand';
 
@@ -65,8 +65,10 @@ function Composer({ post, parent, ph, onDone, focus }: { post: string; parent?: 
 }
 
 function Node({ c, top, onReply }: { c: any; top: any; onReply: (id: string, name: string) => void }) {
-  const { user, profile, toast } = useApp();
+  const { user, profile, toast, can } = useApp();
   const [n, setN] = useState(0), [me, setMe] = useState(false), [open, setOpen] = useState(false);
+  const age = ms(c.at) ? Date.now() - ms(c.at) : 0;
+  const canDelete = !!user && (profile?.role === 'admin' || can('blog.moderate') || (c.uid === user.uid && age < 10 * 60 * 1000));
   useEffect(() => { const fb = getFb(); return fb.onSnapshot(fb.collection(c.ref, 'likes'), (s) => { setN(s.size); setMe(!!user && s.docs.some((x) => x.id === user.uid)); }, () => {}); }, [c.id, user]);
   const legacy = !('avatar' in c), att = !legacy && safeImg(c.photo);
   const like = async () => {
@@ -80,7 +82,7 @@ function Node({ c, top, onReply }: { c: any; top: any; onReply: (id: string, nam
         <div className="cbub"><b>{c.name || 'Customer'}</b>{c.text && <div className={'ctext' + (open ? ' open' : '')} onClick={() => setOpen(true)}>{c.text}</div>}</div>
         {att && <img className="cimg" src={att} alt="" loading="lazy" />}
         <div className="cmeta"><span>{short(c.at)}</span><button className={me ? 'on' : ''} onClick={like}>Like</button><button onClick={() => onReply(top.id, c.name)}>Reply</button>
-          {user && (c.uid === user.uid || profile?.role === 'admin') && <button onClick={() => getFb().deleteDoc(c.ref).catch(() => toast('Not allowed.'))}>Delete</button>}
+          {canDelete && <button onClick={() => getFb().deleteDoc(c.ref).catch(() => toast('You can only delete your own comment within 10 minutes.'))}>Delete</button>}
           {n > 0 && <span className="clk">{K(n)} 👍</span>}</div>
       </div>
     </div>
