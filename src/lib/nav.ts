@@ -1,10 +1,10 @@
 export type Link3 = [string, string, string];
 export type Link4 = [string, string, string, string];
-export const BROWSE: Link3[] = [['/', 'Home', 'home'], ['/shop', 'Shop', 'bag'], ['/services', 'Services', 'palette'], ['/blog', 'Blog', 'book'], ['/reviews', 'Reviews', 'star'], ['/track', 'Track an order', 'truck'], ['/careers', 'Careers', 'briefcase']];
+export const BROWSE: Link3[] = [['/', 'Home', 'home'], ['/shop', 'Shop', 'bag'], ['/services', 'Services', 'palette'], ['/games', 'Games', 'gamepad'], ['/blog', 'Blog', 'book'], ['/reviews', 'Reviews', 'star'], ['/track', 'Track an order', 'truck'], ['/careers', 'Careers', 'briefcase']];
 
 // [slug, label, icon, permission]  ("admin" = admin role only)
 export const ADMIN: [string, Link4[]][] = [
-  ['Sell', [['orders', 'Orders', 'orders', 'orders.view'], ['products', 'Products', 'bag', 'products.view'], ['sections', 'Homepage rows', 'rows', 'products.edit'], ['zones', 'Delivery zones', 'pin', 'zones.manage'], ['promos', 'Promotions', 'tag', 'promotions.manage'], ['rewards', 'Reward codes', 'gift', 'promotions.manage']]],
+  ['Sell', [['orders', 'Orders', 'orders', 'orders.view'], ['products', 'Products', 'bag', 'products.view'], ['sections', 'Homepage rows', 'rows', 'products.edit'], ['zones', 'Delivery zones', 'pin', 'zones.manage'], ['promos', 'Promotions', 'tag', 'promotions.manage'], ['rewards', 'Reward codes', 'gift', 'promotions.manage'], ['games', 'Games and prizes', 'trophy', 'promotions.manage']]],
   ['Content', [['reviews', 'Reviews', 'star', 'reviews.moderate'], ['blog', 'Blog posts', 'edit', 'blog.manage'], ['jobs', 'Jobs', 'briefcase', 'careers.manage'], ['applications', 'Applications', 'file', 'careers.view_applications']]],
   ['People and money', [['people', 'People', 'users', 'users.view'], ['partners', 'Partners', 'store', 'admin'], ['cashier', 'Cashier', 'cash', 'wallet.credit'], ['transactions', 'Transactions', 'list', 'wallet.monitor'], ['withdrawals', 'Withdrawals', 'out', 'wallet.monitor']]],
   ['Store', [['settings', 'Store settings', 'settings', 'settings.manage'], ['reports', 'Reports', 'chart', 'analytics.view']]],

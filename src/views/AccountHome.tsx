@@ -109,9 +109,10 @@ export default function AccountHome() {
         <div className="bento">
           <Tile href="/account/orders" icon="orders" big={String(active)} small="Orders in progress" />
           <Tile href="/shop" icon="bag" big="Shop" small="See what is new" />
+          <Tile href="/games" icon="gamepad" big="Games" small="Play, rank up, win" />
           <Tile href="/account/referrals" icon="gift" big="Rewards" small="Invite friends, claim codes" />
           <Tile href="/account/chat" icon="chat" big="Chat" small="Talk to us" />
-          <Tile href="/services" icon="palette" big="Studio" small="Websites, graphics, Google" wide />
+          <Tile href="/services" icon="palette" big="Studio" small="Websites, graphics, Google" />
         </div>
       </>}
       <h3 className="sec">{adm ? 'Latest orders' : 'Recent orders'}</h3>

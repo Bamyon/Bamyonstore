@@ -1,6 +1,6 @@
-# Bamyon Store
+# Bamyon
 
-Next.js 14 (App Router) and TypeScript. **Bamyon Store** sells clothes, food, gadgets and more (wallet, orders, blog, chat, admin). **Bamyon Studio** pages explain the website, graphic design and Google Business Profile services. Data and sign-in run on Firebase (`bamyon-shop`). Built for Vercel.
+Next.js 14 (App Router) and TypeScript. **Bamyon** is a studio, a games hub and a shop (wallet, orders, blog, chat, admin). **Bamyon Studio** pages explain the website, graphic design and Google Business Profile services. Data and sign-in run on Firebase (`bamyon-shop`). Built for Vercel.
 
 ## First-time setup (about 10 minutes)
 
@@ -22,6 +22,7 @@ Next.js 14 (App Router) and TypeScript. **Bamyon Store** sells clothes, food, ga
 - **Chat**: customers message the store from their dashboard (text and pictures). Admins and staff with the reply permission see every conversation and can start one from People, Message. Unread chats show a notification dot.
 - **Uploads**: one picture picker (tap or drop, preview, progress ring, replace, camera, remove) used for profile photos and product photos.
 - **Menu and dashboard**: one animated side drawer for everyone, with search, explore tiles, account links and permission-based management groups; a dashboard with a greeting, wallet, quick tiles and order progress (admins get totals and quick links).
+- **Games**: Tic-Tac-Toe and Math Duel at `/games`. Anyone can practise against the computer (easy, medium, hard). Signed-in players can challenge friends by name or Bamyon ID, share an invite link, join tournaments, and earn ranks from online wins (Stub, Rookie, Challenger, Contender, Tactician, Strategist, Veteran, Champion, Grandmaster, Legend). Losing never removes progress. Tic-Tac-Toe moves are validated by the security rules; Math Duel questions are generated from a shared seed so both players see the same one. Reaching the Legend target (default 500 online wins) lets a player request a reward (default 10,000 NGN) that the admin approves under Manage, Sell, Games and prizes. Tournament prizes are paid by the admin from the same page. Change the target and reward in Store settings.
 - **Rewards**: the admin creates reward codes (Manage, Sell, Reward codes) with an amount, a claim limit and an expiry. Customers claim them from Wallet or Rewards, at sign-up, and the amount goes straight into their wallet. Every customer also gets a referral code (their Bamyon ID) and a share link. The referral bonus (set in Store settings) is claimable by both the friend and the person who invited them after the friend's first delivered order.
 - **Blog**: admin can write, edit (title, text, pictures, cover), unpublish and delete posts.
 - **Speed**: five self-hosted font files, small logo files for the header, no heavy blur effects on lists, no animated grid background, lazy-loaded checkout, cached static assets.

@@ -32,7 +32,7 @@ export default function Setup() {
   };
   return (
     <div className="auth2" style={{ minHeight: '80vh' }}>
-      <div className="art"><span className="brandrow"><img src={BRAND.logo} alt="" width="40" height="40" /><span><b>{BRAND.nameA}<span>{BRAND.nameB}</span></b><small>Store</small></span></span>
+      <div className="art"><span className="brandrow"><img src={BRAND.logo} alt="" width="40" height="40" /><span><b>{BRAND.nameA}<span>{BRAND.nameB}</span></b></span></span>
         <div><h1>Set up your store.</h1><p className="mut">Create the administrator account. This page locks itself once the first admin exists.</p></div></div>
       {state === 'loading' ? <p className="mut empty">Loading...</p> : state === 'done' ? (
         <div className="glass" style={{ alignSelf: 'center', justifySelf: 'center', padding: '2rem', borderRadius: '1.8rem', margin: '5vh 0' }}><h2>Setup is complete</h2><p className="mut" style={{ margin: '.6rem 0 1rem' }}>An administrator already exists for this store.</p><Link className="btn go" href="/login">Sign in</Link></div>

@@ -29,3 +29,10 @@ export function useDocLive(make: (fb: any) => any, deps: any[] = []): { data: an
   }, deps);
   return s;
 }
+
+/** A clock that re-renders every `ms` milliseconds (used for countdowns). */
+export function useNow(ms = 1000): number {
+  const [n, setN] = useState(() => Date.now());
+  useEffect(() => { const i = setInterval(() => setN(Date.now()), ms); return () => clearInterval(i); }, [ms]);
+  return n;
+}

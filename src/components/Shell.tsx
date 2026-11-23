@@ -16,14 +16,14 @@ import { ms } from '@/lib/util';
 const seen = (k: string): number => { try { const v = +localStorage['seen_' + k]; if (v) return v; localStorage['seen_' + k] = Date.now(); return Date.now(); } catch { return Date.now(); } };
 const mark = (k: string) => { try { localStorage['seen_' + k] = Date.now(); } catch {} };
 
-type DotKey = 'shop' | 'blog' | 'chat' | 'orders' | 'aorders' | 'withdrawals' | 'cashier';
+type DotKey = 'shop' | 'blog' | 'chat' | 'orders' | 'aorders' | 'withdrawals' | 'cashier' | 'games';
 type Dots = Record<DotKey, boolean>;
-const NONE: Dots = { shop: false, blog: false, chat: false, orders: false, aorders: false, withdrawals: false, cashier: false };
+const NONE: Dots = { shop: false, blog: false, chat: false, orders: false, aorders: false, withdrawals: false, cashier: false, games: false };
 // Which menu link carries which notification dot.
-const KEY_OF: Record<string, DotKey> = { '/shop': 'shop', '/blog': 'blog', '/account/chat': 'chat', '/account/orders': 'orders', '/admin/orders': 'aorders', '/admin/withdrawals': 'withdrawals', '/admin/cashier': 'cashier' };
+const KEY_OF: Record<string, DotKey> = { '/shop': 'shop', '/blog': 'blog', '/account/chat': 'chat', '/account/orders': 'orders', '/admin/orders': 'aorders', '/admin/withdrawals': 'withdrawals', '/admin/cashier': 'cashier', '/games': 'games' };
 
 function useDots(): Dots {
-  const { user, profile, can } = useApp();
+  const { user, profile, can, toast } = useApp();
   const [d, setD] = useState<Dots>(NONE);
   const path = usePathname();
   const here = useRef(path);
@@ -55,6 +55,19 @@ function useDots(): Dots {
     return fb.onSnapshot(fb.query(fb.collection(fb.db, 'orders'), fb.where('uid', '==', user.uid), fb.limit(30)), (s: any) => patch('orders', !onPage('/account/orders') && s.docs.some((o: any) => ms(o.data().updatedAt) > seen('orders'))), () => {});
     // eslint-disable-next-line
   }, [user?.uid]);
+  const known = useRef<Set<string> | null>(null);
+  useEffect(() => { // game challenges and "your turn" notices
+    if (!user) return;
+    const fb = getFb();
+    return fb.onSnapshot(fb.query(fb.collection(fb.db, 'players', user.uid, 'games'), fb.orderBy('updatedAt', 'desc'), fb.limit(20)), (s: any) => {
+      const waiting = s.docs.filter((g: any) => { const x = g.data(); return (x.status === 'invited' && x.from !== user.uid) || (x.status === 'live' && x.turnMe); });
+      patch('games', !onPage('/games') && waiting.length > 0);
+      const ids = new Set<string>(waiting.map((g: any) => g.id));
+      if (known.current) { const fresh = s.docs.filter((g: any) => ids.has(g.id) && !known.current!.has(g.id) && g.data().status === 'invited'); if (fresh.length) toast(`${fresh[0].data().oppName || 'A friend'} challenged you to a game`); }
+      known.current = ids;
+    }, () => {});
+    // eslint-disable-next-line
+  }, [user?.uid]);
   useEffect(() => { // staff: new orders, deposits and withdrawals waiting
     if (!user) return;
     const fb = getFb(), off: Array<() => void> = [];
@@ -77,11 +90,9 @@ export default function Shell({ children }: { children: ReactNode }) {
   useEffect(() => { document.body.style.overflow = menu ? 'hidden' : ''; }, [menu]);
   const on = (h: string) => (h === '/' ? path === '/' : path === h || path.startsWith(h + '/'));
   const anyDot = Object.values(dots).some(Boolean);
-  const hideNav = path.startsWith('/login');
+  const showNav = !!user && !path.startsWith('/login');
   const orders = staff && can('orders.view') ? '/admin/orders' : '/account/orders';
-  const NAV: string[][] = !user
-    ? [['/', 'Home', 'home'], ['/shop', 'Shop', 'bag'], ['/services', 'Services', 'palette'], ['/login', 'Sign in', 'user']]
-    : [['/account', 'Home', 'home'], ['/shop', 'Shop', 'bag'], [orders, 'Orders', 'orders'], staff ? ['#menu', 'Manage', 'grid'] : ['/account/wallet', 'Wallet', 'wallet']];
+  const NAV: string[][] = [['/account', 'Home', 'home'], ['/shop', 'Shop', 'bag'], ['/games', 'Games', 'gamepad'], [orders, 'Orders', 'orders'], staff ? ['#menu', 'Manage', 'grid'] : ['/account/wallet', 'Wallet', 'wallet']];
 
   return (
     <>
@@ -89,7 +100,7 @@ export default function Shell({ children }: { children: ReactNode }) {
       <header>
         <div className="row" style={{ flexWrap: 'nowrap', gap: '.6rem' }}>
           <button className={'burger' + (anyDot ? ' dot' : '')} aria-label="Open menu" aria-expanded={menu} onClick={() => setMenu(true)}><i /><i /><i /></button>
-          <Link className="brandrow" href="/"><img src={BRAND.logo} alt="" width="40" height="40" /><span><b>{BRAND.nameA}<span>{BRAND.nameB}</span></b><small>Store</small></span></Link>
+          <Link className="brandrow" href="/"><img src={BRAND.logo} alt="" width="40" height="40" /><span><b>{BRAND.nameA}<span>{BRAND.nameB}</span></b></span></Link>
         </div>
         <div className="row hr">
           <button className="alt ibtn" aria-label="Open cart" onClick={() => setCartOpen(true)}><Icon n="cart" />{cartCount > 0 && <span className="badge">{cartCount}</span>}</button>
@@ -97,12 +108,12 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className={'page' + (hideNav ? '' : ' withnav')}>{children}</div>
+      <div className={'page' + (showNav ? ' withnav' : '')}>{children}</div>
 
       <Drawer dots={dots} keyOf={KEY_OF} />
 
-      {!hideNav && (
-        <nav className="bnav" aria-label="Main">
+      {showNav && (
+        <nav className="bnav" aria-label="Main" style={{ gridTemplateColumns: `repeat(${NAV.length},1fr)` }}>
           {NAV.map(([h, t, i]) => h === '#menu'
             ? <button key={t} className={menu ? 'on' : ''} onClick={() => setMenu(true)}><Icon n={i} /><span>{t}</span></button>
             : <Link key={t} href={h} className={(on(h) ? 'on ' : '') + (KEY_OF[h] && dots[KEY_OF[h]] ? 'dot' : '')}><Icon n={i} /><span>{t}</span></Link>)}

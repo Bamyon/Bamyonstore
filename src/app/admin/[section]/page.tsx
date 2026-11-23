@@ -8,10 +8,11 @@ import { ReviewsAdmin, BlogAdmin, Applications } from '@/views/admin/Content';
 import People, { Partners } from '@/views/admin/People';
 import { Cashier, Transactions, Withdrawals } from '@/views/admin/Money';
 import { StoreSettings, Reports } from '@/views/admin/Store';
+import GameAdmin from '@/views/admin/GameAdmin';
 
 // section -> [permission needed, screen]. "admin" means the admin role only.
 const SECTIONS: Record<string, [string, ComponentType]> = {
-  orders: ['orders.view', AdminOrders], products: ['products.view', AdminProducts], sections: ['products.edit', Sections], zones: ['zones.manage', Zones], promos: ['promotions.manage', Promos], rewards: ['promotions.manage', Rewards],
+  orders: ['orders.view', AdminOrders], products: ['products.view', AdminProducts], sections: ['products.edit', Sections], zones: ['zones.manage', Zones], promos: ['promotions.manage', Promos], rewards: ['promotions.manage', Rewards], games: ['promotions.manage', GameAdmin],
   reviews: ['reviews.moderate', ReviewsAdmin], blog: ['blog.manage', BlogAdmin], jobs: ['careers.manage', Jobs], applications: ['careers.view_applications', Applications],
   people: ['users.view', People], partners: ['admin', Partners], cashier: ['wallet.credit', Cashier], transactions: ['wallet.monitor', Transactions], withdrawals: ['wallet.monitor', Withdrawals],
   settings: ['settings.manage', StoreSettings], reports: ['analytics.view', Reports],

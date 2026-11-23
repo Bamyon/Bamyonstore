@@ -15,7 +15,7 @@ export function StoreSettings() {
   const save = async () => {
     const fb = getFb();
     try {
-      await fb.setDoc(fb.doc(fb.db, 'settings', 'public'), { announce: s.announce || '', announceOn: !!s.announceOn, whatsapp: String(s.whatsapp || '').replace(/\D/g, ''), showSold: s.showSold !== false, showRating: s.showRating !== false, refBonus: Math.max(0, Math.round(+s.refBonus || 0)) }, { merge: true });
+      await fb.setDoc(fb.doc(fb.db, 'settings', 'public'), { announce: s.announce || '', announceOn: !!s.announceOn, whatsapp: String(s.whatsapp || '').replace(/\D/g, ''), showSold: s.showSold !== false, showRating: s.showRating !== false, refBonus: Math.max(0, Math.round(+s.refBonus || 0)), gameRewardWins: Math.max(1, Math.round(+s.gameRewardWins || 500)), gameReward: Math.max(0, Math.round(+s.gameReward || 10000)) }, { merge: true });
       touch('promo'); toast('Saved.');
     } catch { toast('Not allowed.'); }
   };
@@ -37,6 +37,12 @@ export function StoreSettings() {
         <p className="mut">The referral bonus is paid to the friend who signs up and to the person who invited them. Both claim it from Rewards once the friend&apos;s first order is delivered. Create one-off reward codes under Reward codes.</p>
         <input placeholder="WhatsApp number (e.g. 2349041486491)" inputMode="numeric" value={s.whatsapp || ''} onChange={(e) => set('whatsapp', e.target.value)} />
         <input type="number" min={0} placeholder={`Referral bonus per person in NGN (now ${naira(s.refBonus || 0)})`} value={s.refBonus ?? ''} onChange={(e) => set('refBonus', e.target.value)} />
+      </div>
+      <div className="ord">
+        <h3>Games</h3>
+        <p className="mut">A player who reaches the win target in online games can request the reward. You approve it under Games and prizes before any money moves.</p>
+        <input type="number" min={1} placeholder="Online wins needed (default 500)" value={s.gameRewardWins ?? ''} onChange={(e) => set('gameRewardWins', e.target.value)} />
+        <input type="number" min={0} placeholder="Reward in NGN (default 10000)" value={s.gameReward ?? ''} onChange={(e) => set('gameReward', e.target.value)} />
       </div>
       <button className="go" onClick={save}>Save settings</button>
     </>
